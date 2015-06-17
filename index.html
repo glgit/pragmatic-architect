@@ -149,7 +149,7 @@ $ curl -i http://localhost:8000/accounts/1012 returns a 404
      <span class="pl-c1">:handle-ok</span> (<span class="pl-k">fn</span> [_#] (<span class="pl-en">j/write-str</span> (<span class="pl-en">~lookup-fn</span> (<span class="pl-en">keyword</span> ~r-id))))))
 </pre></div>
 
-<p>With this macro, the actuactualal controller definition is simply expressed in terms of the macro, as      </p>
+<p>With this macro, the actual controller definition is expressed in terms of the macro, that is:      </p>
 
 <div class="highlight highlight-Clojure"><pre>(<span class="pl-en">my-r-macro</span> accounts-r id
             <span class="pl-c1">:lookup-fn</span> lookup-accounts)</pre></div>
