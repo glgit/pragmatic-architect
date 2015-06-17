@@ -1,43 +1,31 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en-us">
   <head>
-    <meta charset='utf-8'>
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <meta name="description" content="A Pragmatic Architect : Architecture Posts">
-
-    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
-
-    <title>A Pragmatic Architect</title>
+    <meta charset="UTF-8">
+    <title>A Pragmatic Architect by glgit</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
   </head>
-
   <body>
+    <section class="page-header">
+      <h1 class="project-name">A Pragmatic Architect</h1>
+      <h2 class="project-tagline">Architecture Posts</h2>
+      <a href="https://github.com/glgit/pragmatic-architect" class="btn">View on GitHub</a>
+      <a href="https://github.com/glgit/pragmatic-architect/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/glgit/pragmatic-architect/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
 
-    <!-- HEADER -->
-    <div id="header_wrap" class="outer">
-        <header class="inner">
-          <a id="forkme_banner" href="https://github.com/glgit/pragmatic-architect">View on GitHub</a>
-
-          <h1 id="project_title">A Pragmatic Architect</h1>
-          <h2 id="project_tagline">Architecture Posts</h2>
-
-            <section id="downloads">
-              <a class="zip_download_link" href="https://github.com/glgit/pragmatic-architect/zipball/master">Download this project as a .zip file</a>
-              <a class="tar_download_link" href="https://github.com/glgit/pragmatic-architect/tarball/master">Download this project as a tar.gz file</a>
-            </section>
-        </header>
-    </div>
-
-    <!-- MAIN CONTENT -->
-    <div id="main_content_wrap" class="outer">
-      <section id="main_content" class="inner">
-        <h1>
+    <section class="main-content">
+      <h1>
 <a id="restful-interfaces-in-the-small-and-in-the-large" class="anchor" href="#restful-interfaces-in-the-small-and-in-the-large" aria-hidden="true"><span class="octicon octicon-link"></span></a>RESTful Interfaces in the Small and in the Large</h1>
 
 <p>June, 17th 2015, 
  liverb@acm.org </p>
 
-<p>This post outlines an architecture strategy to desing-in-the-small standarized components - just following the <em>D'ont Repeat Yourself (DRY)</em> principle - and to scale them for whole application landscapes. </p>
+<p>This post outlines an architecture strategy to design-in-the-small standardized components - just following the <em>Don't Repeat Yourself (DRY)</em> principle - and to scale them for whole application landscapes. </p>
 
 <h2>
 <a id="introduction" class="anchor" href="#introduction" aria-hidden="true"><span class="octicon octicon-link"></span></a>Introduction</h2>
@@ -67,12 +55,12 @@
 <h2>
 <a id="the-solution" class="anchor" href="#the-solution" aria-hidden="true"><span class="octicon octicon-link"></span></a>The Solution</h2>
 
-<p>Here, I use a simplified example for explantory purposes. In particular, the functional scope is limited and data storage, security features and so on are omitted. The evoluationary design is outlined by a series of mini-tutorials for this example, which are available on <a href="https://github.com/glgit/tutorial/">here</a>. </p>
+<p>Here, I use a simplified example for explanatory purposes. In particular, the functional scope is limited and data storage, security features and so on are omitted. The evolutionary design is outlined by a series of mini-tutorials for this example, which are available on <a href="https://github.com/glgit/tutorial/">here</a>. </p>
 
 <p>An Interface Component provides in our case just</p>
 
 <ul>
-<li><p>A set of RESTful interfaces with  their <em>resources</em> and <em>methods</em>.  For instance, a resource currency <code>account</code> providing a <code>GET</code> method that accepts an account identifier and returns , if the cller is authorized,  the account data in JSON. </p></li>
+<li><p>A set of RESTful interfaces with  their <em>resources</em> and <em>methods</em>.  For instance, a resource currency <code>account</code> providing a <code>GET</code> method that accepts an account identifier and returns , if the caller is authorized,  the account data in JSON. </p></li>
 <li><p>A mocked data set that the RESTful interfaces are delivering </p></li>
 </ul>
 
@@ -98,11 +86,11 @@
   (<span class="pl-en">route/not-found</span> <span class="pl-s"><span class="pl-pds">"</span>Not found<span class="pl-pds">"</span></span>))  <span class="pl-c">;; exception case</span>
 
 (<span class="pl-k">def</span> <span class="pl-e">handler</span>
-  <span class="pl-s"><span class="pl-pds">"</span>Handler chain invokved on a request by the server<span class="pl-pds">"</span></span>
+  <span class="pl-s"><span class="pl-pds">"</span>Handler chain invoked on a request by the server<span class="pl-pds">"</span></span>
   (<span class="pl-en">-&gt;</span> app-routes
       wrap-params))</pre></div>
 
-<p>The handler is passed to the <a href="http://www.eclipse.org/jetty/">Jetty</a> webserver at start-up time (the details are found in the <a href="https://github.com/glgit/tutorial/blob/master/ex1/project.clj"><code>project.clj</code></a> configuration file under <code>:ring</code>). The example is available <a href="https://github.com/glgit/tutorial/tree/master/ex1">here</a>.</p>
+<p>The handler is passed to the <a href="http://www.eclipse.org/jetty/">Jetty</a> web-server at start-up time (the details are found in the <a href="https://github.com/glgit/tutorial/blob/master/ex1/project.clj"><code>project.clj</code></a> configuration file under <code>:ring</code>). The example is available <a href="https://github.com/glgit/tutorial/tree/master/ex1">here</a>.</p>
 
 <h3>
 <a id="a-first-interface-getaccounts" class="anchor" href="#a-first-interface-getaccounts" aria-hidden="true"><span class="octicon octicon-link"></span></a>A First Interface getAccounts</h3>
@@ -132,22 +120,22 @@
 
 <p>This resource definition includes a check whether the requested account exists or not and a handler that returns the retrieved account. </p>
 
-<p>Now, we can run on the command line the server and use <code>curl</code> to invoke the service (as soon as the hellow world we-page is showing up). Alternatively, we can also type the URL into the browser.</p>
+<p>Now, we can run on the command line the server and use <code>curl</code> to invoke the service (as soon as the hello world we-page is showing up). Alternatively, we can also type the URL into the browser.</p>
 
 <pre><code>$ curl -i http://localhost:8000/accounts/101  returns the account object
 $ curl -i http://localhost:8000/accounts/1012 returns a 404
 </code></pre>
 
-<p>At this point, we have a working RESTful interface.  But, the developer of the next interface has to understand the Liberator library. Furthermore, the developer might make different design choices and hence each interface implementaion might be somewhat different. Could we not standardize this resource definition and provide it as a library?</p>
+<p>At this point, we have a working RESTful interface.  But, the developer of the next interface has to understand the Liberator library. Furthermore, the developer might make different design choices and hence each interface implementation might be somewhat different. Could we not standardize this resource definition and provide it as a library?</p>
 
 <h3>
 <a id="a-standardized-re-usable-controller" class="anchor" href="#a-standardized-re-usable-controller" aria-hidden="true"><span class="octicon octicon-link"></span></a>A Standardized Re-usable Controller</h3>
 
-<p>For building a re-usabel resource definition, I have to understand first how the MVC design pattern relates to the above code. Second, where to use protocols to decouple the controller.</p>
+<p>For building a reusable resource definition, I have to understand first how the MVC design pattern relates to the above code. Second, where to use protocols to decouple the controller.</p>
 
 <p>The MVC pattern resource <em>model</em>,  <em>view</em> and <em>controller</em> correspond   in above code to the <code>atom</code> with the functions on this atom, the reader/writer for JSON , and the <code>defresource</code> form that defines the controller.    </p>
 
-<p>A GET controller has always the same structure, so that I rewrite the above examaple as the following clojure macro (asssuming that this is a good enough one).  </p>
+<p>A GET controller has always the same structure, so that I rewrite the above example as the following Clojure macro (assuming that this is a good enough one).  </p>
 
 <div class="highlight highlight-Clojure"><pre>(<span class="pl-k">defmacro</span> <span class="pl-e">my-r-macro</span>
   [r-name r-id &amp; {<span class="pl-c1">:keys</span> [lookup-fn]}]
@@ -162,14 +150,14 @@ $ curl -i http://localhost:8000/accounts/1012 returns a 404
      <span class="pl-c1">:handle-ok</span> (<span class="pl-k">fn</span> [_#] (<span class="pl-en">j/write-str</span> (<span class="pl-en">~lookup-fn</span> (<span class="pl-en">keyword</span> ~r-id))))))
 </pre></div>
 
-<p>With this marcro, the actuual controller definition is simply expressed in terms of the macro, as      </p>
+<p>With this macro, the actuactualal controller definition is simply expressed in terms of the macro, as      </p>
 
 <div class="highlight highlight-Clojure"><pre>(<span class="pl-en">my-r-macro</span> accounts-r id
             <span class="pl-c1">:lookup-fn</span> lookup-accounts)</pre></div>
 
 <p>This simple macro, requires that we declare the functions used to access the model. This results in unnecessary boiler-plate code. More importantly, the requirements on these functions are not clearly specified.  </p>
 
-<p>To address these short-commings, I introduce a <em>protocol</em> defining the signature to access the resource models. </p>
+<p>To address these shortcomings, I introduce a <em>protocol</em> defining the signature to access the resource models. </p>
 
 <div class="highlight highlight-Clojure"><pre>    (<span class="pl-en">defprotocol`</span> RM-Accessor
       (<span class="pl-en">get-item</span> [this id])
@@ -179,13 +167,14 @@ $ curl -i http://localhost:8000/accounts/1012 returns a 404
 
 <p>This protocol supports also the update of a resource using a <code>POST</code>. Before adding an item, you can determine whether the item is a duplicate and whether it is valid. </p>
 
-<p>I rewrite next the controller macro using the protocol just defined. In above macro example, we replace the <code>~lookup-fn</code> by the protocol function <code>get-item</code>. The latter requires as a first argument a type instance implementing the protocol, wich I will call  <code>r-m</code> - an input gargument of the macro.</p>
+<p>I rewrite next the controller macro using the protocol just defined. In above macro example, we replace the <code>~lookup-fn</code> by the protocol function <code>get-item</code>. The latter requires as a first argument a type instance implementing the protocol, wich I will call  <code>r-m</code> - an input argument of the macro.</p>
 
 <div class="highlight highlight-Clojure"><pre>(<span class="pl-k">defmacro</span> <span class="pl-e">defresource-macro</span>  [r-name r-id r-m &amp; {<span class="pl-c1">:keys</span> [malformed-fn]}]
       `(<span class="pl-k">defresource</span> ~r-name [~r-id]
          <span class="pl-c1">:available-media-types</span> [<span class="pl-s"><span class="pl-pds">"</span>application/json<span class="pl-pds">"</span></span>]
          <span class="pl-c1">:allowed-methods</span> [<span class="pl-c1">:get</span> <span class="pl-c1">:post</span>]
-         <span class="pl-c1">:known-content-type?</span> #(<span class="pl-en">check-content-type</span> % [<span class="pl-s"><span class="pl-pds">"</span>application/json<span class="pl-pds">"</span></span>])
+         <span class="pl-c1">:known-content-type?</span> 
+            #(<span class="pl-en">check-content-type</span> % [<span class="pl-s"><span class="pl-pds">"</span>application/json<span class="pl-pds">"</span></span>])
          <span class="pl-c1">:malformed?</span>
            (<span class="pl-k">fn</span> [{{method# <span class="pl-c1">:request-method</span>} <span class="pl-c1">:request</span> <span class="pl-c1">:as</span> ctx#}]
              (<span class="pl-k">if</span> (<span class="pl-en">=</span> <span class="pl-c1">:post</span> method#)
@@ -199,7 +188,6 @@ $ curl -i http://localhost:8000/accounts/1012 returns a 404
                          [<span class="pl-c1">false</span> {<span class="pl-c1">:record</span> record#}])))
                   [<span class="pl-c1">true</span> {<span class="pl-c1">:message</span> <span class="pl-s"><span class="pl-pds">"</span>No body<span class="pl-pds">"</span></span>}])
               (<span class="pl-k">catch</span> Exception e#
-
           [<span class="pl-c1">true</span> {<span class="pl-c1">:message</span> (<span class="pl-en">format</span> <span class="pl-s"><span class="pl-pds">"</span>exception: %s<span class="pl-pds">"</span></span> (<span class="pl-en">.getMessage</span> e#))}]))))
     <span class="pl-c1">:exists?</span>
         (<span class="pl-k">fn</span> [_#]
@@ -217,10 +205,10 @@ $ curl -i http://localhost:8000/accounts/1012 returns a 404
     <span class="pl-c1">:handle-ok</span> (<span class="pl-k">fn</span> [_#] (<span class="pl-en">j/write-str</span> (<span class="pl-en">get-item</span> ~r-m ~r-id)))))
 </pre></div>
 
-<p>You mgiht want to compare the rewrite of the functions that define <code>:exists?</code> and <code>:handle-ok</code>.  The additional functions are necessary for the POST method  main methods are:</p>
+<p>You might want to compare the rewrite of the functions that define <code>:exists?</code> and <code>:handle-ok</code>.  The additional functions are necessary for the POST method  main methods are:</p>
 
 <ul>
-<li><p><code>:malformed?</code> checks whether the request itself is valid. I my implementation, I distinguish between the protocol- and model-specific validation. The former and the latter are carried out by the functions <code>~malformed-fn</code> and the protocl function <code>validate-item</code>. </p></li>
+<li><p><code>:malformed?</code> checks whether the request itself is valid. I my implementation, I distinguish between the protocol- and model-specific validation. The former and the latter are carried out by the functions <code>~malformed-fn</code> and the protocol function <code>validate-item</code>. </p></li>
 <li><p><code>:post!</code> updates the accounts <code>atom</code> unless the booking item is a duplicate. </p></li>
 </ul>
 
@@ -272,7 +260,7 @@ $ curl -i http://localhost:8000/accounts/1012 returns a 404
         (<span class="pl-en">s/optional-key</span> <span class="pl-c1">:xref</span>)s/Str
         (<span class="pl-en">s/optional-key</span> <span class="pl-c1">:ts</span>) s/Str})</pre></div>
 
-<p>Noteworthy is the definition of a predicate <code>value-date?</code> that checks that the value is a string in the format <code>"YYYY-MM-DD"</code> that represents a valid date. Furthermore, I apply first validations only where necessary - here the <code>POST</code>reguest body. Second, the schemata are not imposing type constraints on the implementations. This makes it possible to aim for generic implementations, but constrain their inputs as necessary from a business perspective.   </p>
+<p>Noteworthy is the definition of a predicate <code>value-date?</code> that checks that the value is a string in the format <code>"YYYY-MM-DD"</code> that represents a valid date. Furthermore, I apply first validations only where necessary - here the <code>POST</code>request body. Second, the schemata are not imposing type constraints on the implementations. This makes it possible to aim for generic implementations, but constrain their inputs as necessary from a business perspective.   </p>
 
 <p>At this point, we can define our RESTful interface by simply declaring a suitable resource type instance that takes as arguments</p>
 
@@ -293,21 +281,19 @@ $ curl -i http://localhost:8000/accounts/1012 returns a 404
             accounts-bookings-r-m
             <span class="pl-c1">:malformed-fn</span> malformed-request?)         </pre></div>
 
-<p>This definition is sufficient to implement RESTful interfaces for depenent resources using JSON as media type. Under the hood of this macro, we could replace the REST library or extend the macro to support multiple media types as well as to provide end-points using additional transport protols, such SOAP/HTTPs.</p>
+<p>This definition is sufficient to implement RESTful interfaces for dependent resources using JSON as media type. Under the hood of this macro, we could replace the REST library or extend the macro to support multiple media types as well as to provide end-points using additional transport protools, such SOAP/HTTPs.</p>
 
-<p>A solution architect designing an application need only to follow <em>"Don't Repeat Yourself" (DRY)</em> to obtain the here outlined solution.  For instituationalizing such a solution accross a domain or enterprise, one could adopt a community approach or implement integration libararies centrally. </p>
-      </section>
-    </div>
+<p>A solution architect designing an application need only to follow <em>"Don't Repeat Yourself" (DRY)</em> to obtain the here outlined solution.  For institutionalizing such a solution across a domain or enterprise, one could adopt a community approach or implement integration libraries centrally. </p>
 
-    <!-- FOOTER  -->
-    <div id="footer_wrap" class="outer">
-      <footer class="inner">
-        <p class="copyright">A Pragmatic Architect maintained by <a href="https://github.com/glgit">glgit</a></p>
-        <p>Published with <a href="https://pages.github.com">GitHub Pages</a></p>
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/glgit/pragmatic-architect">A Pragmatic Architect</a> is maintained by <a href="https://github.com/glgit">glgit</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
       </footer>
-    </div>
 
-    
+    </section>
 
+  
   </body>
 </html>
+
