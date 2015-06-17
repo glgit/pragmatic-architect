@@ -41,6 +41,277 @@ $ git fetch origin
 $ git checkout gh-pages
 </code></pre>
 
+
+   <h1 id="toc_0">RESTful Interfaces in the Small and in the Large</h1>
+
+<p>This post outlines an architecture strategy to desing-in-the-small standarized components - just following the <em>D&#39;ont Repeat Yourself (DRY)</em> principle - and to scale them for whole application landscapes. </p>
+
+<h2 id="toc_1">Introduction</h2>
+
+<h3 id="toc_2">Problem</h3>
+
+<p>At the beginning, we often implement a few interfaces. The number of interfaces grows then over time significantly. Interface implementations are often representing a significant percentage of the code base and hence costs.  </p>
+
+<p>What <strong>architectures strategies</strong> for implementing interfaces provide <em>economies of scale</em> and facilitate the transition from the <em>programming-in-the-small</em> to the <em>programming-in-the-large</em>? </p>
+
+<h3 id="toc_3">Solution</h3>
+
+<p>The solution, which I present here, is based on the following principles</p>
+
+<ul>
+<li><p>Adopt early on <em>design patterns</em> to standardize the design;</p></li>
+<li><p>Use the programming-language&rsquo;s <em>interface</em> to decouple the pattern elements; and</p></li>
+<li><p>Generalize pattern elements to re-use them across the board. </p></li>
+</ul>
+
+<p>This is nothing new per se. But, the interesting twist is how to start programming- in-the-small and evolve the design to one that fits for programming-in-the-large. This requirement rules out strategies requiring a large initial investment.</p>
+
+<p>As a case study, I show how to apply these principles to the  implementation of RESTful interfaces in the programming language Clojure. Clojure offers offers an interface notion, called <em>protocols</em>, and a <em>macro</em> mechanism that facilitates the generalization and re-use. As a design pattern, we use the  <em>Model-View-Controller (MVC)</em> design pattern []. For a brief summary of concepts, see Appendix. </p>
+
+<h2 id="toc_4">The Solution</h2>
+
+<p>Here, I use a simplified example for explantory purposes. In particular, the functional scope is limited and data storage, security features and so on are omitted. The evoluationary design is outlined by a series of mini-tutorials for this example, which are available on <a href="https://github.com/glgit/tutorial/">here</a>. </p>
+
+<p>An Interface Component provides in our case just</p>
+
+<ul>
+<li><p>A set of RESTful interfaces with  their <em>resources</em> and <em>methods</em>.  For instance, a resource currency <code>account</code> providing a <code>GET</code> method that accepts an account identifier and returns , if the cller is authorized,  the account data in JSON. </p></li>
+<li><p>A mocked data set that the RESTful interfaces are delivering </p></li>
+</ul>
+
+<h2 id="toc_5">Implementing a simple interface</h2>
+
+<h3 id="toc_6">Hello World Example</h3>
+
+<p>In Clojure, the library  <a href="https://github.com/ring-clojure/ring">ring</a> and <a href="https://github.com/weavejester/compojure">compojure</a>      enable to define interfaces and <em>end-points</em> in terms of <em>routes</em> and their run-time context.  </p>
+
+<p>As an example, I use these libraries to implement an interface that delivers a static HTML page. This is our &ldquo;hello world&rdquo; example to get started.</p>
+
+<pre class="line-numbers"><code class="language-Clojure">(defn home
+  &quot;Function returning a static html page&quot;
+  [req]
+  (render (io/resource &quot;index.html&quot;) req))
+
+(defroutes app-routes
+  &quot;Defined routes of the application&quot;
+  (GET &quot;/&quot; [] home)               ;; home-page
+  (route/resources &quot;/&quot; )          ;; resources required
+  (route/not-found &quot;Not found&quot;))  ;; exception case
+
+(def handler
+  &quot;Handler chain invokved on a request by the server&quot;
+  (-&gt; app-routes
+      wrap-params))</code></pre>
+
+<p>The handler is passed to the <a href="http://www.eclipse.org/jetty/">Jetty</a> webserver at start-up time (the details are found in the <a href="https://github.com/glgit/tutorial/blob/master/ex1/project.clj"><code>project.clj</code></a> configuration file under <code>:ring</code>). The example is available <a href="https://github.com/glgit/tutorial/tree/master/ex1">here</a>.</p>
+
+<h3 id="toc_7">A First Interface getAccounts</h3>
+
+<p>First, we define example data.  For this purpose, we simply declare  an immutable map of accounts, where each account is described by a map too. Here, just a single account with three credit and debit bookings.  </p>
+
+<pre class="line-numbers"><code class="language-Clojure">(def account-test-data
+    {:101 {:account-id 101 :currency &quot;CHF&quot;
+     :bookings[ {:amount 100  :value-date &quot;2014-01-02&quot; :ccy &quot;CHF&quot; :xref &quot;A1&quot;}
+                {:amount -100 :value-date &quot;2014-01-02&quot; :ccy &quot;CHF&quot; :xref &quot;A2&quot;}
+                {:amount 100  :value-date &quot;2014-01-02&quot; :ccy &quot;CHF&quot; :xref &quot;A3&quot;}]})</code></pre>
+
+<p>For updating the data, we assign the defined map to an <em>atom</em> , i.e. a named reference holding our  immutable value and  providing functions to swap one value with another one.  </p>
+
+<pre class="line-numbers"><code class="language-Clojure">(def accounts-data (atom account-test-data))</code></pre>
+
+<p>Second, we need a handler for our interface method. The library <a href="http://clojure-liberator.github.io/liberator/">Liberator</a> implements the REST protocol as per RFC.  Here, we use this library and add the necessary logic for our particular handler. </p>
+
+<pre class="line-numbers"><code class="language-Clojure">(defresource accounts-r [id]
+    :available-media-types [&quot;application/json&quot;]
+    :allowed-methods [:get]
+    :exists? (fn [_]
+                 (if-let [acc-j  (get-in @account [(keyword id)])]
+                    [true  {:account  acc-j}]
+                    [false {:message (format &quot;Account %s not found&quot; id)}]))
+    :handle-ok (fn [{acc-j :account}](j/write-str acc-j)))</code></pre>
+
+<p>This resource definition includes a check whether the requested account exists or not and a handler that returns the retrieved account. </p>
+
+<p>Now, we can run on the command line the server and use <code>curl</code> to invoke the service (as soon as the hellow world we-page is showing up). Alternatively, we can also type the URL into the browser.</p>
+
+<pre><code>$ curl -i http://localhost:8000/accounts/101  returns the account object
+$ curl -i http://localhost:8000/accounts/1012 returns a 404</code></pre>
+
+<p>At this point, we have a working RESTful interface.  But, the developer of the next interface has to understand the Liberator library. Furthermore, the developer might make different design choices and hence each interface implementaion might be somewhat different. Could we not standardize this resource definition and provide it as a library?</p>
+
+<h3 id="toc_8">A Standardized Re-usable Controller</h3>
+
+<p>For building a re-usabel resource definition, I have to understand first how the MVC design pattern relates to the above code. Second, where to use protocols to decouple the controller.</p>
+
+<p>The MVC pattern resource <em>model</em>,  <em>view</em> and <em>controller</em> correspond   in above code to the <code>atom</code> with the functions on this atom, the reader/writer for JSON , and the <code>defresource</code> form that defines the controller.    </p>
+
+<p>A GET controller has always the same structure, so that I rewrite the above examaple as the following clojure macro (asssuming that this is a good enough one).  </p>
+
+<pre class="line-numbers"><code class="language-Clojure">(defmacro my-r-macro
+  [r-name r-id &amp; {:keys [lookup-fn]}]
+  `(defresource ~r-name [~r-id]
+     :allowed-methods [:get ]
+     :known-content-type? #(check-content-type % [&quot;application/json&quot;])
+     :exists?
+         (fn [_#]
+            (if-let [res# (~lookup-fn (keyword ~r-id))]
+                true
+                [false {:message (format &quot;~r-name %s not found&quot; ~r-id)}]))
+     :handle-ok (fn [_#] (j/write-str (~lookup-fn (keyword ~r-id))))))
+</code></pre>
+
+<p>With this marcro, the actuual controller definition is simply expressed in terms of the macro, as      </p>
+
+<pre class="line-numbers"><code class="language-Clojure">(my-r-macro accounts-r id
+            :lookup-fn lookup-accounts)</code></pre>
+
+<p>This simple macro, requires that we declare the functions used to access the model. This results in unnecessary boiler-plate code. More importantly, the requirements on these functions are not clearly specified.  </p>
+
+<p>To address these short-commings, I introduce a <em>protocol</em> defining the signature to access the resource models. </p>
+
+<pre class="line-numbers"><code class="language-Clojure">    (defprotocol` RM-Accessor
+      (get-item [this id])
+      (duplicate-item? [this id item])
+      (valid-item? [this id item])
+      (add-item [this id item]))</code></pre>
+
+<p>This protocol supports also the update of a resource using a <code>POST</code>. Before adding an item, you can determine whether the item is a duplicate and whether it is valid. </p>
+
+<p>I rewrite next the controller macro using the protocol just defined. In above macro example, we replace the <code>~lookup-fn</code> by the protocol function <code>get-item</code>. The latter requires as a first argument a type instance implementing the protocol, wich I will call  <code>r-m</code> - an input gargument of the macro.</p>
+
+<pre class="line-numbers"><code class="language-Clojure">(defmacro defresource-macro  [r-name r-id r-m &amp; {:keys [malformed-fn]}]
+      `(defresource ~r-name [~r-id]
+         :available-media-types [&quot;application/json&quot;]
+         :allowed-methods [:get :post]
+         :known-content-type? #(check-content-type % [&quot;application/json&quot;])
+         :malformed?
+           (fn [{{method# :request-method} :request :as ctx#}]
+             (if (= :post method#)
+               (try
+                (if-let [body# (body-as-string ctx#)]
+                  (let [record# (j/read-str body# :key-fn keyword)]
+                     (if (~malformed-fn record#)
+                       [true  {:message &quot;booking incomplete.&quot;}]
+                       (if (not (valid-item? ~r-m ~r-id record#))
+                         [true  {:message &quot;invalid entry&quot; }]
+                         [false {:record record#}])))
+                  [true {:message &quot;No body&quot;}])
+              (catch Exception e#
+
+          [true {:message (format &quot;exception: %s&quot; (.getMessage e#))}]))))
+    :exists?
+        (fn [_#]
+           (if-let [res# (get-item ~r-m ~r-id)]
+              [true res#]
+              [false {:message (format &quot;%s %s not found...&quot; (get-name ~r-m) ~r-id)}]))
+    :can-post-to-missing?
+         (fn [_#] [false {:message (format &quot;%s %s not found!&quot; (get-name ~r-m) ~r-id)}])
+    :post!
+         (fn [{record# :record}]
+              (if (duplicate-item? ~r-m ~r-id record#)
+                [false {:message (format &quot;account booking %s already exists&quot; ~r-id)}]
+                [true  {:result (add-item ~r-m ~r-id record#)}]))
+    :location #(build-entry-url (get % :request) )
+    :handle-ok (fn [_#] (j/write-str (get-item ~r-m ~r-id)))))
+</code></pre>
+
+<p>You mgiht want to compare the rewrite of the functions that define <code>:exists?</code> and <code>:handle-ok</code>.  The additional functions are necessary for the POST method  main methods are:</p>
+
+<ul>
+<li><p><code>:malformed?</code> checks whether the request itself is valid. I my implementation, I distinguish between the protocol- and model-specific validation. The former and the latter are carried out by the functions <code>~malformed-fn</code> and the protocl function <code>validate-item</code>. </p></li>
+<li><p><code>:post!</code> updates the accounts <code>atom</code> unless the booking item is a duplicate. </p></li>
+</ul>
+
+<p>Before I can create an interface using the re-written macro, I have to implement the protocol. Clojure provides <code>deftype</code> and <code>defrecord</code> for implementing types in the implementation and application domain, respectively.</p>
+
+<p>The kind of resource model is defined by a type. As an example, I define <code>DependentRessource</code>, which is suitable to handle bookings given an account identifier. </p>
+
+<pre class="line-numbers"><code class="language-Clojure">(deftype DependentResourceModel [rm-name data schema validation-fn dr-key xref-key]
+   RM-Accessor
+   (get-item [this id]
+      (get-in @data [(keyword id) dr-key]))
+   (duplicate-item? [this id item]
+      (if (empty? (xref-key item))
+        false
+       (let [journal (get-in @data [(keyword id) dr-key])
+             item-keys (vec
+                        (clojure.set/difference
+                           (set (keys item)) (set (list xref-key))))]
+         (clojure.set/subset?
+            (clojure.set/project (set (list item)) item-keys )
+            (clojure.set/project (set journal) item-keys)))))
+   (valid-item? [this id item]
+      (let [obj (get-in @data [(keyword id)])
+            v1 (valid-schema? schema item)
+            v2 (validation-fn obj item)]
+        (and (first v1)(first v2))))
+   (add-item [this id item]
+      (let [j-item (conj {:time-stamp (l/format-local-time
+                                           (l/local-now) :date-time)} item)
+            items (get-in @data [(keyword id) dr-key])]
+         (swap! data assoc-in [(keyword id) dr-key]
+                              (vec (conj items j-item ))))))</code></pre>
+
+<p>This type implements </p>
+
+<ul>
+<li><p><code>get-item</code>to retrieve the account bookings (as per parameter <code>dr-key</code>) given the account identifier <code>id</code>; and</p></li>
+<li><p><code>add-item</code>to add an account booking <code>item</code> to a particular account <code>id</code>. </p></li>
+</ul>
+
+<p>The function  <code>valid-item?</code> checks <code>valid-schema?</code> and <code>validation-fn</code>. The latter checks in our example that the currency of the booking item corresponds to the account currency.  The former checks that a booking item complies with the data shape defined for it.   </p>
+
+<p>For defining data shapes and validation them, I use the <a href="https://github.com/Prismatic/schema">schema</a> library.   </p>
+
+<pre class="line-numbers"><code class="language-Clojure">    (s/defschema account-booking-s
+       {:value-date (s/pred value-date? &#39;value-date?)
+        :amount s/Num
+        :ccy currency-code-s
+        (s/optional-key :xref)s/Str
+        (s/optional-key :ts) s/Str})</code></pre>
+
+<p>Noteworthy is the definition of a predicate <code>value-date?</code> that checks that the value is a string in the format <code>&quot;YYYY-MM-DD&quot;</code> that represents a valid date. Furthermore, I apply first validations only where necessary - here the <code>POST</code>reguest body. Second, the schemata are not imposing type constraints on the implementations. This makes it possible to aim for generic implementations, but constrain their inputs as necessary from a business perspective.   </p>
+
+<p>At this point, we can define our RESTful interface by simply declaring a suitable resource type instance that takes as arguments</p>
+
+<ul>
+<li>an atom <code>accounts-data</code> and schema `accounts-booking-s</li>
+<li>a <code>booking-validation-fn?</code>; and </li>
+<li>the keywords used by the type-specific protocol implementation.</li>
+</ul>
+
+<pre class="line-numbers"><code class="language-Clojure">
+(def accounts-bookings-r-m
+  (DependentResourceModel.  &quot;account-bookings&quot;
+                            accounts-data account-booking-s
+                            booking-validation-fn?
+                            :bookings :xref))
+
+(defresource-macro accounts-bookings-r id
+            accounts-bookings-r-m
+            :malformed-fn malformed-request?)         </code></pre>
+
+<p>This definition is sufficient to implement RESTful interfaces for depenent resources using JSON as media type. Under the hood of this macro, we could replace the REST library or extend the macro to support multiple media types as well as to provide end-points using additional transport protols, such SOAP/HTTPs.</p>
+
+<p>A solution architect designing an application need only to follow <em>&ldquo;Don&rsquo;t Repeat Yourself&rdquo; (DRY)</em> to obtain the here outlined solution.  For instituationalizing such a solution accross a domain or enterprise, one could adopt a community approach or implement integration libararies centrally. </p>
+
+<h2 id="toc_9">Appendix: Background</h2>
+
+<h3 id="toc_10">What is an interface?</h3>
+
+<p>Applictions exchange data through <strong>interfaces</strong>, which offer particular data and functions of an application  as a serice. Interfaces are implemented using different <em>transport protocools</em> including file transfer protocol (ftp), message-passing and synchronous WebServices (WS)  and <em>RESTful</em> interfaces.   </p>
+
+<p>interfaces, any like Application Programming Interfaces (APIs),  provide </p>
+
+<ul>
+<li><p>Suitable <em>abstraction</em> over the implementation, which facilitates the usage and encapsulates implementation details.  An abstraction might involve a mappring between different vocabularies, be it an  industry standard vocabulary, an implementation vocabulary, etc. </p></li>
+<li><p>Interfaces represent a <em>contract</em>, the interace description specifies the contract terms and conditions.  Furthermore,  this description should be sufficient to use an interace (and hence inspecting the implementation is not necessary).</p></li>
+<li><p>Interfaces <em>loosely couple</em> applications by introducing an introdcution: a coupling between the interface implementation to the interface and the interface to the interface consumer (independent of whether one develops interaces using a contract- or code-first approach).  </p></li>
+<li><p>Interfaces are <em>versioned</em>, so that an interface can be further develeoped  and the consumers can mgirate over time.</p></li>
+</ul>
+
+
+
 <p>If you're using the GitHub for Mac, simply sync your repository and you'll see the new branch.</p>
 
 <h3>
@@ -73,7 +344,7 @@ $ git checkout gh-pages
       </footer>
     </div>
 
-    
+
 
   </body>
 </html>
