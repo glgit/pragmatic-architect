@@ -73,21 +73,22 @@
 
 <p>As an example, I use these libraries to implement an interface that delivers a static HTML page. This is our "hello world" example to get started.</p>
 
-<div class="highlight highlight-Clojure"><pre>(<span class="pl-k">defn</span> <span class="pl-e">home</span>
-  <span class="pl-s"><span class="pl-pds">"</span>Function returning a static html page<span class="pl-pds">"</span></span>
+<pre><code>(defn home
+  "Function returning a static html page"
   [req]
-  (<span class="pl-en">render</span> (<span class="pl-en">io/resource</span> <span class="pl-s"><span class="pl-pds">"</span>index.html<span class="pl-pds">"</span></span>) req))
+  (render (io/resource "index.html") req))
 
-(<span class="pl-k">defroutes</span> app-routes
-  <span class="pl-s"><span class="pl-pds">"</span>Defined routes of the application<span class="pl-pds">"</span></span>
-  (<span class="pl-en">GET</span> <span class="pl-s"><span class="pl-pds">"</span>/<span class="pl-pds">"</span></span> [] home)               <span class="pl-c">;; home-page</span>
-  (<span class="pl-en">route/resources</span> <span class="pl-s"><span class="pl-pds">"</span>/<span class="pl-pds">"</span></span> )          <span class="pl-c">;; resources required </span>
-  (<span class="pl-en">route/not-found</span> <span class="pl-s"><span class="pl-pds">"</span>Not found<span class="pl-pds">"</span></span>))  <span class="pl-c">;; exception case</span>
+(defroutes app-routes
+  "Defined routes of the application"
+  (GET "/" [] home)               ;; home-page
+  (route/resources "/" )          ;; resources required 
+  (route/not-found "Not found"))  ;; exception case
 
-(<span class="pl-k">def</span> <span class="pl-e">handler</span>
-  <span class="pl-s"><span class="pl-pds">"</span>Handler chain invoked on a request by the server<span class="pl-pds">"</span></span>
-  (<span class="pl-en">-&gt;</span> app-routes
-      wrap-params))</pre></div>
+(def handler
+  "Handler chain invoked on a request by the server"
+  (-&gt; app-routes
+      wrap-params))
+</code></pre>
 
 <p>The handler is passed to the <a href="http://www.eclipse.org/jetty/">Jetty</a> web-server at start-up time (the details are found in the <a href="https://github.com/glgit/tutorial/blob/master/ex1/project.clj"><code>project.clj</code></a> configuration file under <code>:ring</code>). The example is available <a href="https://github.com/glgit/tutorial/tree/master/ex1">here</a>.</p>
 
