@@ -1,0 +1,22 @@
+---
+import { SITE_TITLE } from '../consts';
+import { url } from '../utils';
+---
+
+<footer class="site-footer">
+  <div class="container">
+    <p>© {new Date().getFullYear()} {SITE_TITLE} · <a href={url('rss.xml')}>RSS</a></p>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    margin-top: 4rem;
+    border-top: 1px solid var(--border);
+    font-family: var(--font-ui);
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+  p { margin: 1.5rem 0; }
+  a { color: inherit; }
+</style>

@@ -1,0 +1,53 @@
+---
+import { SITE_TITLE } from '../consts';
+import { url } from '../utils';
+
+const path = Astro.url.pathname.replace(/\/$/, '');
+const links = [
+  { href: url('posts/'), label: 'Posts' },
+  { href: url('about/'), label: 'About' },
+];
+---
+
+<header class="site-header">
+  <div class="container inner">
+    <a class="brand" href={url()}>
+      <span class="mark" aria-hidden="true">▲</span>
+      {SITE_TITLE}
+    </a>
+    <nav aria-label="Main">
+      {links.map(({ href, label }) => (
+        <a href={href} aria-current={path.startsWith(href.replace(/\/$/, '')) ? 'page' : undefined}>{label}</a>
+      ))}
+    </nav>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    font-family: var(--font-ui);
+  }
+  .inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem 1.5rem;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+  }
+  .brand {
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: var(--text);
+    text-decoration: none;
+    letter-spacing: -0.01em;
+  }
+  .mark { color: var(--accent); margin-right: 0.3em; }
+  nav { display: flex; gap: 1.25rem; font-size: 0.95rem; }
+  nav a { color: var(--muted); text-decoration: none; }
+  nav a:hover, nav a[aria-current='page'] { color: var(--text); }
+  nav a[aria-current='page'] { font-weight: 600; }
+</style>

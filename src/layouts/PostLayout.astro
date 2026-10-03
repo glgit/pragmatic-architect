@@ -1,0 +1,39 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import BaseLayout from './BaseLayout.astro';
+import { formatDate, url } from '../utils';
+
+interface Props {
+  post: CollectionEntry<'posts'>;
+  minutes: number;
+}
+
+const { post, minutes } = Astro.props;
+const { title, description, pubDate, updatedDate, tags } = post.data;
+---
+
+<BaseLayout title={title} description={description}>
+  <article>
+    <header>
+      <p class="meta">
+        <time datetime={pubDate.toISOString()}>{formatDate(pubDate)}</time>{" "}
+        · {minutes} min read
+        {updatedDate && <span> · updated {formatDate(updatedDate)}</span>}
+      </p>
+      <h1>{title}</h1>
+      <p class="lede">{description}</p>
+      {tags.length > 0 && <p>{tags.map((tag) => <span class="tag">{tag}</span>)}</p>}
+    </header>
+    <hr />
+    <div class="prose">
+      <slot />
+    </div>
+  </article>
+  <p class="back"><a href={url('posts/')}>← All posts</a></p>
+</BaseLayout>
+
+<style>
+  .meta { font-family: var(--font-ui); font-size: 0.85rem; color: var(--muted); margin-bottom: 0.5rem; }
+  .lede { font-size: 1.2rem; color: var(--muted); }
+  .back { font-family: var(--font-ui); font-size: 0.95rem; margin-top: 3rem; }
+</style>

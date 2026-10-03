@@ -1,0 +1,9 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { url } from '../utils';
+---
+
+<BaseLayout title="Not found">
+  <h1>Page not found</h1>
+  <p>That page doesn't exist. Try the <a href={url()}>home page</a> or the <a href={url('posts/')}>post list</a>.</p>
+</BaseLayout>

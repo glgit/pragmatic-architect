@@ -1,0 +1,12 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PostList from '../../components/PostList.astro';
+import { getPosts } from '../../utils';
+
+const posts = await getPosts();
+---
+
+<BaseLayout title="Posts" description="All posts on The Pragmatic Architect.">
+  <h1>Posts</h1>
+  <PostList posts={posts} />
+</BaseLayout>

@@ -1,0 +1,18 @@
+---
+import { render } from 'astro:content';
+import PostLayout from '../../layouts/PostLayout.astro';
+import { getPosts } from '../../utils';
+
+export async function getStaticPaths() {
+  const posts = await getPosts();
+  return posts.map((post) => ({ params: { id: post.id }, props: { post } }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+const minutes = Math.max(1, Math.round((post.body ?? '').split(/\s+/).length / 220));
+---
+
+<PostLayout post={post} minutes={minutes}>
+  <Content />
+</PostLayout>
